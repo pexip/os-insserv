@@ -1,0 +1,27 @@
+Description: Move insserv binaries out of the default path
+ On Ubuntu, running insserv directly can devastate your boot and
+ shutdown sequence. This can cause many problems, including data loss
+ and incomplete migrations on upgrades (such as the /run migration)
+ .
+ Since 3rd-party software packages are known to run insserv directly
+ if it's available, this patch makes it unavailable by moving it to
+ /usr/lib, where it can't cause as much trouble.
+Author: Adam Stokes <adam.stokes@canonical.com>
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/insserv/+bug/858122
+Acked-by: Evan Broder <evan@ebroder.net>
+Forwarded: not-needed
+Last-Update: 2012-02-15
+
+Index: insserv-1.14.0/Makefile
+===================================================================
+--- insserv-1.14.0.orig/Makefile	2012-02-15 17:01:06.882286352 -0800
++++ insserv-1.14.0/Makefile	2012-02-15 17:01:22.226286716 -0800
+@@ -53,7 +53,7 @@
+ 	   LINK = ln -sf
+ #
+ 	SDOCDIR = $(DESTDIR)/usr/share/man/man8
+-	SBINDIR = $(DESTDIR)/sbin
++	SBINDIR = $(DESTDIR)/usr/lib/insserv
+ 	CONFDIR = $(DESTDIR)/etc
+ 	 LSBDIR = $(DESTDIR)/lib/lsb
+       USRLSBDIR = $(DESTDIR)/usr/lib/lsb

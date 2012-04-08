@@ -1,0 +1,20 @@
+Description: Separate check from install so checks can be made optional
+ In order to support DEB_BUILD_OPTIONS=nocheck cleanly the install and
+ check targets are best separated
+Author: Wookey <wookey@linaro.org>
+Bug-Debian: http://bugs.debian.org/666212
+Last-Update: 2012-03-29
+
+Index: insserv-1.14.0/Makefile
+===================================================================
+--- insserv-1.14.0.orig/Makefile	2012-03-29 19:02:05.000000000 +0100
++++ insserv-1.14.0/Makefile	2012-03-29 19:03:01.000000000 +0100
+@@ -134,7 +134,7 @@
+ 	tests/common
+ endif
+ 
+-install:	$(TODO) check
++install:	$(TODO)
+ 	$(MKDIR)   $(SBINDIR)
+ 	$(MKDIR)   $(SDOCDIR)
+ 	$(MKDIR)   $(CONFDIR)
