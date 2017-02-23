@@ -11,7 +11,7 @@ DM-Upload-Allowed: yes
 Homepage: http://savannah.nongnu.org/projects/sysvinit
 XSBC-Debian-Vcs-Svn: svn://svn.debian.org/initscripts-ng/trunk/src/insserv
 XSBC-Debian-Vcs-Browser: http://svn.debian.org/wsvn/initscripts-ng/trunk/src/insserv/
-XS-Pexip-Upstream: http://archive.ubuntu.com/ubuntu/ precise
+XS-Pexip-Upstream: http://ftp.debian.org/debian/ jessie
 
 Package: insserv
 Architecture: any
