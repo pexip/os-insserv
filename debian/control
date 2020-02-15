@@ -9,7 +9,7 @@ Standards-Version: 3.9.3
 Homepage: http://savannah.nongnu.org/projects/sysvinit
 Vcs-Svn: svn://svn.debian.org/initscripts-ng/trunk/src/insserv
 Vcs-Browser: http://svn.debian.org/wsvn/initscripts-ng/trunk/src/insserv/
-XS-Pexip-Upstream: http://ftp.debian.org/debian/ stretch
+XS-Pexip-Upstream: http://ftp.debian.org/debian/ buster
 
 Package: insserv
 Architecture: any
