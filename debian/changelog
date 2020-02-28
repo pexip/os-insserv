@@ -1,3 +1,9 @@
+insserv (1.18.0-2pexip1) pexip; urgency=medium
+
+  * Migrate to Buster
+
+ -- Vincent Sanders <vince@pexip.com>  Fri, 28 Feb 2020 22:36:22 +0000
+
 insserv (1.18.0-2) unstable; urgency=medium
 
   * Apply patch to improve formatting and spelling of insserv(8) manual
