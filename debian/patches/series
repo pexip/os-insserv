@@ -1,10 +1,8 @@
-10_nosuse.patch
+fix-manpage-formatting.patch
 11_debian_conf.patch
 20_manpage_spelling.patch
 21_tweak_warnings.patch
-30_interactive_regexp_match_fix.patch
 92_m68k_alignment.patch
-100_show.patch
 110_portmap.patch
 130_crossbuild_fixes.patch
 140_debian_test_suite.patch
@@ -13,3 +11,4 @@
 170_undeclared_extension.patch
 180_MAXSYMLINKS.patch
 warn_in_ignore_mode.patch
+remove-systemd-integration.patch
