@@ -23,11 +23,13 @@
  *
  */
 
+#ifdef WANT_SYSTEMD
 /*
  * Systemd integration
  */
 #define SYSTEMD_SERVICE_PATH	"/lib/systemd/system"
 #define SYSTEMD_BINARY_PATH	"/bin/systemd"
+#endif /* WANT_SYSTEMD */
 
 #define MINIMAL_MAKE	1	/* Remove disabled scripts from .depend.boot,
 				 * .depend.start, .depend.halt, and .depend.stop */
@@ -1391,6 +1393,43 @@ static inline void scan_script_reset(void)
 }
 
 /*
+ * Return TRUE if the script is an OpenRC script.
+ */
+
+int is_openrc_job(const char *path)
+{
+    char buf[64];
+    FILE *script = NULL;
+    char *p = NULL;
+
+    script = fopen(path, "r");
+    if (script == NULL) {
+        warn("Can not open script %s: %s\n", path, strerror(errno));
+        return 0;
+    }
+
+    if (fgets(buf, 64, script) == NULL) {
+        warn("Could not read script %s: %s\n", path, strerror(errno));
+        fclose(script);
+        return 0;
+    }
+    fclose(script);
+
+    p = buf;
+    while (*p) {
+       if (isspace(*p)) {
+             memmove(p , p + 1, strlen(p + 1) + 1);
+	  }
+          p++;
+   }
+
+    if (! strncmp(buf, "#!/sbin/openrc-run", 18))
+        return 1;
+
+    return 0;
+}
+
+/*
  * return name of upstart job if the script is a symlink to
  * /lib/init/upstart-job, or NULL if path do not point to an
  * upstart job.
@@ -1461,6 +1500,7 @@ static char *is_upstart_job(const char *path)
 #define FOUND_LSB_OVERRIDE 0x04
 #define FOUND_LSB_UPSTART  0x08
 #define FOUND_LSB_SYSTEMD  0x10
+#define FOUND_LSB_OPENRC   0x20
 
 static int o_flags = O_RDONLY;
 
@@ -1820,6 +1860,11 @@ static uchar scan_script_defaults(int dfd, const char *restrict const path,
     }
 #endif /* WANT_SYSTEMD */
 
+    if (is_openrc_job(path)) {
+        ret |= FOUND_LSB_OPENRC;
+        goto out;
+    }
+
     if (NULL != (upstart_job = is_upstart_job(path))) {
 	xreset(upstart_job);
 	/*
@@ -2035,7 +2080,7 @@ static void scan_script_locations(const char *const path, const char *const over
 		if (!lsb)
 		    service->attr.flags |= SERV_NOTLSB;
 
-		if ((lsb & FOUND_LSB_HEADER) == 0) {
+		if ((lsb & (FOUND_LSB_HEADER|FOUND_LSB_OPENRC)) == 0) {
 		    if ((lsb & (FOUND_LSB_DEFAULT|FOUND_LSB_OVERRIDE)) == 0)
 		        warn("warning: script '%s' missing LSB tags and overrides\n", d->d_name);
 		    else
@@ -2236,7 +2281,8 @@ static int cfgfile_filter(const struct dirent *restrict d)
 	    !strcmp(end,  "new")	||
 	    !strcmp(end,  "org")	||
 	    !strcmp(end,  "orig")	||
-	    !strncmp(end, "dpkg", 3)	|| /* .dpkg-old, .dpkg-new ... */
+	    !strncmp(end, "dpkg", 4)	|| /* .dpkg-old, .dpkg-new ... */
+            !strncmp(end, "ucf", 3)     || /* .ucf-old, .ucf-dist ... */
 	    !strcmp(end,  "save")	||
 	    !strcmp(end,  "swp")	|| /* Used by vi like editors */
 	    !strcmp(end,  "core"))	   /* modern core dump */
@@ -2737,6 +2783,8 @@ boolean Start_Stop_Overlap(char *start_levels, char *stop_levels)
    int string_index = 0;
    char *found;
 
+   if (!start_levels || !stop_levels) return false;
+
    while (start_levels[string_index])   /* go to end of string */
    {
        if (start_levels[string_index] != ' ') /* skip spaces */
@@ -3134,7 +3182,7 @@ int main (int argc, char *argv[])
 	char * provides, * begin, * token;
 	const uchar lsb = scan_script_defaults(dfd, name, override_path, (char**)0, false, ignore);
 
-	if ((lsb & FOUND_LSB_HEADER) == 0) {
+	if ((lsb & (FOUND_LSB_HEADER|FOUND_LSB_OPENRC)) == 0) {
 	    if ((lsb & (FOUND_LSB_DEFAULT|FOUND_LSB_OVERRIDE)) == 0)
 	        warn("warning: script '%s' missing LSB tags and overrides\n", name);
 	    else
@@ -3329,7 +3377,7 @@ int main (int argc, char *argv[])
 	/* main scanner for LSB comment in current script */
 	lsb = scan_script_defaults(dfd, d->d_name, override_path, (char**)0, false, ignore);
 
-	if ((lsb & FOUND_LSB_HEADER) == 0) {
+	if ((lsb & (FOUND_LSB_HEADER|FOUND_LSB_OPENRC)) == 0) {
 	    if ((lsb & (FOUND_LSB_DEFAULT|FOUND_LSB_OVERRIDE)) == 0)
 	        warn("warning: script '%s' missing LSB tags and overrides\n", d->d_name);
 	    else
@@ -3370,7 +3418,7 @@ int main (int argc, char *argv[])
 #endif /* SUSE */
 
 #ifndef SUSE
-	if (!lsb) {
+	if (!lsb || (lsb & FOUND_LSB_OPENRC)) {
 	    script_inf.required_start = xstrdup(DEFAULT_DEPENDENCY);
 	    script_inf.required_stop = xstrdup(DEFAULT_DEPENDENCY);
 	    script_inf.default_start = xstrdup(DEFAULT_START_LVL);
@@ -3573,6 +3621,14 @@ int main (int argc, char *argv[])
 		    if (script_inf.stop_after && script_inf.stop_after != empty) {
 			reversereq(service, REQ_SHLD|REQ_KILL, script_inf.stop_after);
 		    }
+
+                    overlap = Start_Stop_Overlap(script_inf.default_start, script_inf.default_stop);
+                    if (overlap)
+                    {
+                        warn("Script `%s' has overlapping Default-Start and Default-Stop runlevels (%s) and (%s). This should be fixed.\n",
+                              d->d_name, script_inf.default_start, script_inf.default_stop);
+                    }
+
 		    /*
 		     * Use information from symbolic link structure to
 		     * check if all services are around for this script.
@@ -3738,13 +3794,6 @@ int main (int argc, char *argv[])
 	    script_inf.default_stop = empty;
 	}
 #endif /* not SUSE */
-
-        overlap = Start_Stop_Overlap(script_inf.default_start, script_inf.default_stop);
-        if (overlap)
-        {
-            warn("Script %s has overlapping Default-Start and Default-Stop runlevels (%s) and (%s). This should be fixed.\n",
-                  d->d_name, script_inf.default_start, script_inf.default_stop);
-        }
 
 	if (isarg && !defaults && !del) {
 	    if (argr[curr_argc]) {

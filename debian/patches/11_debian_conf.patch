@@ -12,8 +12,6 @@ Status:  Debian specific, showed to upstream.
  insserv.conf | 14 +++++++-------
  1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/insserv.conf b/insserv.conf
-index 54145fd..933ccad 100644
 --- a/insserv.conf
 +++ b/insserv.conf
 @@ -1,29 +1,29 @@
@@ -51,7 +49,7 @@ index 54145fd..933ccad 100644
  
  #
  # SunRPC portmapper available
-@@ -33,9 +33,9 @@ $portmap	portmap
+@@ -33,9 +33,9 @@
  #
  # The system time has been set correctly
  #
