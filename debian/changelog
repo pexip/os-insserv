@@ -1,3 +1,64 @@
+insserv (1.21.0-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload
+  * Apply patches from Trek to only check LSB headers for overlapping
+    run-levels and document Default-{Start,Stop} more clearly
+    (Closes: #971713)
+
+ -- Matthew Vernon <matthew@debian.org>  Sun, 21 Feb 2021 17:13:07 +0000
+
+insserv (1.21.0-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Dmitry Bogatov <KAction@debian.org>  Sat, 28 Sep 2019 00:02:45 +0000
+
+insserv (1.21.0~beta-1) unstable; urgency=medium
+
+  * New upstream release (Closes: #633858)
+  * Refresh patches
+  * Fix spelling error in manpage
+
+ -- Dmitry Bogatov <KAction@debian.org>  Mon, 26 Aug 2019 22:13:17 +0000
+
+insserv (1.20.0-2) unstable; urgency=medium
+
+  * [233d6578] Fix spurious warnings about unknown virtual dependencies
+    (Closes: #932199)
+
+ -- Dmitry Bogatov <KAction@debian.org>  Fri, 19 Jul 2019 14:56:05 +0000
+
+insserv (1.20.0-1) unstable; urgency=medium
+
+  * New upstream release. (Closes: #544229)
+  * Upload to unstable.
+  * [ed123226] Drop 170_undeclared_extension.patch
+  * [a7b8f47b] Update debhelper compat to 12
+  * [d868be3c] Update standards version to 4.4.0 (no changes needed)
+  * [f5bbe191] Include 'pdns-recursor' into $named virtual facility
+    (Closes: #833126)
+  * [d7635e47] Remove /etc/init.d/.depend.* files on purge (Closes: #864279)
+
+ -- Dmitry Bogatov <KAction@debian.org>  Sun, 14 Jul 2019 15:16:37 +0000
+
+insserv (1.20.0~beta2-1) experimental; urgency=medium
+
+  * New upstream release
+    (Closes: #573571, #775912, #661314, #547717, #547609, #601054, #538304, #926547, #622878)
+  * Drop patches, applied upstream; refresh rest. Patches applied upstream:
+    + 92_m68k_alignment.patch
+    + 130_crossbuild_fixes.patch
+    + 150_core_string_test.patch
+    + 21_tweak_warnings.patch
+    + 180_MAXSYMLINKS.patch
+    + remove-systemd-integration.patch
+    + 160_manual_page_update.patch
+    + 140_debian_test_suite.patch
+    + 20_manpage_spelling.patch
+    + fix-manpage-formatting.patch
+
+ -- Dmitry Bogatov <KAction@debian.org>  Sat, 15 Jun 2019 01:20:11 +0000
+
 insserv (1.18.0-2pexip2) pexip; urgency=medium
 
   * Rebuild in buster environment

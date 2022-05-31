@@ -1,0 +1,76 @@
+From: Matthew Vernon <matthew@debian.org>
+Date: Sun, 21 Feb 2021 17:07:48 +0000
+X-Dgit-Generated: 1.21.0-1.1 25129a77868f74aca504d43faf9d2bfe375468dc
+Subject: Patches from Trek (Closes: #971713)
+
+Only check LSB headers for overlapping runlevels (so you don't get an
+error if the admin has adjusted runlevels), and also document
+Default-Start and Default-Stop more clearly.
+
+---
+
+--- insserv-1.21.0.orig/insserv.8.in
++++ insserv-1.21.0/insserv.8.in
+@@ -97,6 +97,11 @@ execute insserv directly unless you know
+ may render your boot system inoperable.
+ .B update\-rc.d
+ is the recommended interface for managing init scripts.
++.PP
++The
++.B Default\-Start
++keyword declares on which runlevels the script must be started. An empty
++value means the script will never be started.
+ @@BEGIN_SUSE@@
+ Please note, that the
+ .B Default\-Stop
+@@ -104,6 +109,10 @@ are ignored in SuSE Linux, because the S
+ uses a differential link scheme (see
+ .IR init.d (7)).
+ @@ELSE_SUSE@@
++The same applies for its counterpart
++.B Default\-Stop
++with the only difference that the script is stopped.
++.PP
+ Please be aware that the line
+ .sp 1
+ .in +1l
+--- insserv-1.21.0.orig/insserv.c
++++ insserv-1.21.0/insserv.c
+@@ -2737,6 +2737,8 @@ boolean Start_Stop_Overlap(char *start_l
+    int string_index = 0;
+    char *found;
+ 
++   if (!start_levels || !stop_levels) return false;
++
+    while (start_levels[string_index])   /* go to end of string */
+    {
+        if (start_levels[string_index] != ' ') /* skip spaces */
+@@ -3573,6 +3575,14 @@ int main (int argc, char *argv[])
+ 		    if (script_inf.stop_after && script_inf.stop_after != empty) {
+ 			reversereq(service, REQ_SHLD|REQ_KILL, script_inf.stop_after);
+ 		    }
++
++                    overlap = Start_Stop_Overlap(script_inf.default_start, script_inf.default_stop);
++                    if (overlap)
++                    {
++                        warn("Script `%s' has overlapping Default-Start and Default-Stop runlevels (%s) and (%s). This should be fixed.\n",
++                              d->d_name, script_inf.default_start, script_inf.default_stop);
++                    }
++
+ 		    /*
+ 		     * Use information from symbolic link structure to
+ 		     * check if all services are around for this script.
+@@ -3739,13 +3749,6 @@ int main (int argc, char *argv[])
+ 	}
+ #endif /* not SUSE */
+ 
+-        overlap = Start_Stop_Overlap(script_inf.default_start, script_inf.default_stop);
+-        if (overlap)
+-        {
+-            warn("Script %s has overlapping Default-Start and Default-Stop runlevels (%s) and (%s). This should be fixed.\n",
+-                  d->d_name, script_inf.default_start, script_inf.default_stop);
+-        }
+-
+ 	if (isarg && !defaults && !del) {
+ 	    if (argr[curr_argc]) {
+ 		char * ptr = argr[curr_argc];
