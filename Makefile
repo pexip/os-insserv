@@ -9,10 +9,10 @@ INITDIR  =	/etc/init.d
 INSCONF  =	/etc/insserv.conf
 #DESTDIR =	/tmp/root
 #DEBUG	 =	-DDEBUG=1 -Wpacked
-DEBUG	 =
+DEBUG	 =	
 #ISSUSE	 =	-DSUSE
 DESTDIR	 =
-VERSION	 =	1.18.0
+VERSION	 =	1.21.0
 TARBALL  =	$(PACKAGE)-$(VERSION).tar.xz
 DATE	 =	$(shell date +'%d%b%y' | tr '[:lower:]' '[:upper:]')
 CFLDBUS	 =	$(shell pkg-config --cflags dbus-1)
@@ -27,13 +27,13 @@ else
 ifeq ($(ARCH),i386)
 	  COPTS = -g -O3 -mcpu=i586 -mtune=i686
 else
-	  COPTS = -g -O2
+	  COPTS ?= -g -O2
 endif
 endif
 	 CFLAGS = -W -Wall -Wunreachable-code $(COPTS) $(DEBUG) $(LOOPS) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 \
 		  $(ISSUSE) -DINITDIR=\"$(INITDIR)\" -DINSCONF=\"$(INSCONF)\" -pipe 
 	  CLOOP = # -falign-loops=0
-	LDFLAGS = -Wl,-O,3,--relax
+	LDFLAGS ?= -Wl,-O,3,--relax
 	   LIBS =
 ifdef USE_RPMLIB
 	 CFLAGS += -DUSE_RPMLIB=1
@@ -113,16 +113,22 @@ insserv.8:	insserv.8.in .system
 	sed -r '\!@@BEGIN_SUSE@@!,\!@@(ELSE|END)_SUSE@@!d;\!@@(NOT|END)_SUSE@@!d' < $< > $@
 endif
 
-.system:	SYSTEM=$(shell cat .system 2> /dev/null)
-.system:	.force
-	@test "$(SYSTEM)" = "$(ISSUSE)$(DEBUG)" || echo "$(ISSUSE)$(DEBUG)" > .system
+ifneq ($(shell cat .system 2>/dev/null),$(ISSUSE)$(DEBUG))
+.system-changed = yes
+endif
+.system:	$(if $(.system-changed),.force)
+	@echo "$(ISSUSE)$(DEBUG)" > .system
 
 .force:
 
-.PHONY:		clean distclean
-distclean: clean
 clean:
 	$(RM) *.o *~ $(TODO) config.h .depend.* .system
+
+distclean: clean
+	rm -f $(TARBALL) $(TARBALL).sig
+	rm -f insserv
+	rm -rf tests/root
+
 
 ifneq ($(MAKECMDGOALS),clean)
 
@@ -137,14 +143,16 @@ ifneq ($(MAKECMDGOALS),clean)
 endif
 
 check: insserv
+	rm -rf tests/root/
 ifeq ($(ISSUSE),-DSUSE)
 	issuse=true tests/common
 #	issuse=true tests/suse
 else
-	tests/common
+	cd tests && ./common
+	cd tests && severity=check ./run-testsuite
 endif
 
-install:	$(TODO) check
+install:	$(TODO) 
 	$(MKDIR)   $(SBINDIR)
 	$(MKDIR)   $(SDOCDIR)
 	$(MKDIR)   $(CONFDIR)
@@ -155,7 +163,9 @@ ifeq ($(ISSUSE),-DSUSE)
 endif
 	$(INSTBIN) insserv        $(SBINDIR)/
 	$(INSTDOC) insserv.8      $(SDOCDIR)/
-	$(INSTCON) insserv.conf   $(CONFDIR)/
+	# Only install configuration file if it does not exist. Do not overwrite distro config.
+	if [ -f $(CONFDIR)/insserv.conf ]; then $(INSTCON) insserv.conf $(CONFDIR)/insserv.conf.sample ; fi
+	if [ ! -f $(CONFDIR)/insserv.conf ] ; then $(INSTCON) insserv.conf $(CONFDIR)/ ; fi
 ifeq ($(ISSUSE),-DSUSE)
 	$(INSTCON) init-functions $(LSBDIR)/
 	$(INSTSRP) install_initd  $(USRLSBDIR)/
@@ -213,18 +223,15 @@ upload: $(SFTPBATCH)
 	rm -rf $(TMP)
 
 dist: $(TARBALL).sig
-
+	$(RM) -rf insserv/
 
 $(TARBALL).sig: $(TARBALL)
 	@gpg -q -ba --use-agent -o $@ $<
 
-$(TARBALL): clean
+$(TARBALL): distclean
 	mkdir -p insserv/tests
 	cp $(FILES) insserv/
 	cp tests/* insserv/tests/
 	@tar --xz --owner=nobody --group=nobody -cf $(TARBALL) insserv/
 	rm -rf insserv
-
-distclean: clean
-	rm -f $(TARBALL) $(TARBALL).sig
 
