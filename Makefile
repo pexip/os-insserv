@@ -12,26 +12,34 @@ INSCONF  =	/etc/insserv.conf
 DEBUG	 =	
 #ISSUSE	 =	-DSUSE
 DESTDIR	 =
-VERSION	 =	1.21.0
+VERSION	 =	1.24.0
 TARBALL  =	$(PACKAGE)-$(VERSION).tar.xz
 DATE	 =	$(shell date +'%d%b%y' | tr '[:lower:]' '[:upper:]')
+PREFIX   ?=	/usr
+ifdef WANT_SYSTEMD
 CFLDBUS	 =	$(shell pkg-config --cflags dbus-1)
+else
+CFLDBUS  =
+endif
 
 #
 # Architecture
 #
 ifdef RPM_OPT_FLAGS
-	  COPTS = -g $(RPM_OPT_FLAGS)
+	  COPTS = $(RPM_OPT_FLAGS)
 else
 	   ARCH = $(shell uname -i)
 ifeq ($(ARCH),i386)
-	  COPTS = -g -O3 -mcpu=i586 -mtune=i686
+	  COPTS = -O3 -mcpu=i586 -mtune=i686
 else
-	  COPTS ?= -g -O2
+	  COPTS ?= -O2
 endif
 endif
 	 CFLAGS = -W -Wall -Wunreachable-code $(COPTS) $(DEBUG) $(LOOPS) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 \
-		  $(ISSUSE) -DINITDIR=\"$(INITDIR)\" -DINSCONF=\"$(INSCONF)\" -pipe 
+		  $(ISSUSE) -DINITDIR=\"$(INITDIR)\" -DINSCONF=\"$(INSCONF)\" -pipe
+ifdef WANT_SYSTEMD
+	 CFLAGS += -DWANT_SYSTEMD=1
+endif
 	  CLOOP = # -falign-loops=0
 	LDFLAGS ?= -Wl,-O,3,--relax
 	   LIBS =
@@ -40,7 +48,9 @@ ifdef USE_RPMLIB
 	LDFLAGS += -Wl,--as-needed
 	   LIBS += -lrpm
 endif
+ifdef WANT_SYSTEMD
 	   LIBS += $(shell pkg-config --libs dbus-1)
+endif
 	     CC ?= gcc
 	     RM = rm -f
 	  MKDIR = mkdir -p
@@ -55,11 +65,11 @@ endif
 	INSTCON = install $(INSTCONFLAGS)
 	   LINK = ln -sf
 #
-	SDOCDIR = $(DESTDIR)/usr/share/man/man8
-	SBINDIR = $(DESTDIR)/sbin
+	SDOCDIR = $(DESTDIR)$(PREFIX)/share/man/man8
+	SBINDIR = $(DESTDIR)$(PREFIX)/sbin
 	CONFDIR = $(DESTDIR)/etc
 	 LSBDIR = $(DESTDIR)/lib/lsb
-      USRLSBDIR = $(DESTDIR)/usr/lib/lsb
+      USRLSBDIR = $(DESTDIR)$(PREFIX)/lib/lsb
 
 #
 # Determine if a library provides a specific function
@@ -73,11 +83,16 @@ endif
 # The rules
 #
 
+ifdef WANT_SYSTEMD
+SYSTEMD_O = systemd.o
+SYSTEMD_H = systemd.h
+endif
+
 TODO	=	insserv insserv.8
 
 all:		$(TODO)
 
-insserv:	insserv.o listing.o systemd.o map.o
+insserv:	insserv.o listing.o ${SYSTEMD_O} map.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 listing.o:	listing.c insserv.c listing.h config.h .system
@@ -86,11 +101,13 @@ listing.o:	listing.c insserv.c listing.h config.h .system
 map.o:	map.c listing.h config.h .system
 	$(CC) $(CFLAGS) $(CLOOP) $(CFLDBUS) -c $<
 
-insserv.o:	insserv.c map.o listing.h systemd.h config.h .system
+insserv.o:	insserv.c map.o listing.h ${SYSTEMD_H} config.h .system
 	$(CC) $(CFLAGS) $(CLOOP) $(CFLDBUS) insserv.c -c 
 
+ifdef WANT_SYSTEMD
 systemd.o:	systemd.c map.o listing.h systemd.h config.h .system
 	$(CC) $(CFLAGS) $(CLOOP) $(CFLDBUS) -c $<
+endif
 
 listing.h:	.system
 
@@ -191,11 +208,11 @@ FILES	= README         \
 	  remove_initd   \
 	  install_initd 
 
-SVLOGIN=$(shell svn info | sed -rn '/Repository Root:/{ s|.*//(.*)\@.*|\1|p }')
 ifeq ($(MAKECMDGOALS),upload)
 override TMP:=$(shell mktemp -d $(PACKAGE)-$(VERSION).XXXXXXXX)
 override SFTPBATCH:=$(TMP)/$(VERSION)-sftpbatch
 override LSM=$(TMP)/$(PACKAGE)-$(VERSION).lsm
+GITLOGIN=$(shell git remote -v | head -n 1 | cut -f 1 -d '@' | sed 's/origin\t//g')
 
 $(LSM):	$(TMP)/$(PACKAGE)-$(VERSION)
 	@echo -e "Begin3\n\
@@ -218,7 +235,7 @@ dest: $(LSM)
 endif
 
 upload: $(SFTPBATCH)
-	@sftp -b $< $(SVLOGIN)@dl.sv.nongnu.org:/releases/sysvinit
+	@sftp -b $< $(GITLOGIN)@dl.sv.nongnu.org:/releases/sysvinit
 	mv $(TARBALL) $(LSM) .
 	rm -rf $(TMP)
 

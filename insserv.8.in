@@ -97,6 +97,11 @@ execute insserv directly unless you know exactly what you're doing, doing so
 may render your boot system inoperable.
 .B update\-rc.d
 is the recommended interface for managing init scripts.
+.PP
+The
+.B Default\-Start
+keyword declares on which runlevels the script must be started. An empty
+value means the script will never be started.
 @@BEGIN_SUSE@@
 Please note, that the
 .B Default\-Stop
@@ -104,6 +109,10 @@ are ignored in SuSE Linux, because the SuSE boot script concept
 uses a differential link scheme (see
 .IR init.d (7)).
 @@ELSE_SUSE@@
+The same applies for its counterpart
+.B Default\-Stop
+with the only difference that the script will be stopped.
+.PP
 Please be aware that the line
 .sp 1
 .in +1l
@@ -373,7 +382,7 @@ Beside using the extensions
 and
 .I ,stop=<lvl1,lvl2,...>
 it is possible to use override files replace a LSB comment header
-or simple provide a missing LSB comment header.  This can be done
+or simply provide a missing LSB comment header.  This can be done
 by placing a file with the new LSB comment header using the same
 name as the boot or init script in the directory
 .IR /etc/insserv/overrides/ .
@@ -407,6 +416,7 @@ boot script file names will be not accepted by
         *.local
 @@END_SUSE@@
         *.dpkg*
+        *.ucf*
         *.rpm*
         *.ba*
         *.old
