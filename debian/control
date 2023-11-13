@@ -4,15 +4,14 @@ Priority: optional
 Maintainer: Pexip AS <packaging@pexip.com>
 XSBC-Pexip-Original-Maintainer: Debian sysvinit maintainers <debian-init-diversity@chiark.greenend.org.uk>
 XSBC-Pexip-Original-Uploaders:
- Kel Modderman <kel@otaku42.de>,
- Dmitry Bogatov <KAction@debian.org>,
  Petter Reinholdtsen <pere@debian.org>,
+ Mark Hindley <leepen@debian.org>,
 Build-Depends:
  bash-completion,
  debhelper-compat (= 12),
  po-debconf,
-Standards-Version: 4.4.0
-Homepage: http://savannah.nongnu.org/projects/sysvinit
+Standards-Version: 4.6.0
+Homepage: https://github.com/slicer69/insserv
 Vcs-Browser: https://salsa.debian.org/debian/insserv
 Vcs-Git: https://salsa.debian.org/debian/insserv.git
 XS-Pexip-Upstream: http://deb.debian.org/debian/ bookworm

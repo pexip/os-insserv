@@ -1,0 +1,15 @@
+--- a/Makefile
++++ b/Makefile
+@@ -66,10 +66,10 @@
+ 	   LINK = ln -sf
+ #
+ 	SDOCDIR = $(DESTDIR)$(PREFIX)/share/man/man8
+-	SBINDIR = $(DESTDIR)$(PREFIX)/sbin
++	SBINDIR = $(DESTDIR)/sbin
+ 	CONFDIR = $(DESTDIR)/etc
+ 	 LSBDIR = $(DESTDIR)/lib/lsb
+-      USRLSBDIR = $(DESTDIR)$(PREFIX)/lib/lsb
++      USRLSBDIR = $(DESTDIR)/lib/lsb
+ 
+ #
+ # Determine if a library provides a specific function

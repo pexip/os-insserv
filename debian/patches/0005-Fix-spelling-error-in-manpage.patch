@@ -6,11 +6,9 @@ Subject: Fix spelling error in manpage
  insserv.8.in | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/insserv.8.in b/insserv.8.in
-index b79385a..9008b5f 100644
 --- a/insserv.8.in
 +++ b/insserv.8.in
-@@ -262,7 +262,7 @@ grouped into one starting or stopping order.
+@@ -271,7 +271,7 @@
  Currently the following options are recognized by insserv:
  .TP
  .BR \-v ,\  \-\-verbose

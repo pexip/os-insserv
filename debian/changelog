@@ -1,3 +1,33 @@
+insserv (1.24.0-1) unstable; urgency=medium
+
+  * New upstream version 1.24.0
+  * Update upstream URLs after move to GitHub.
+  * Remove old savannah upstream source signing key.
+  * d/README.Debian:
+    - Update LSB reference URL.
+    - Remove obsolete information.
+  * Remove cruft d/po/*.
+  * d/changelog: lintian-brush cleanup long lines and days of the week.
+
+ -- Mark Hindley <leepen@debian.org>  Tue, 22 Feb 2022 10:31:29 +0000
+
+insserv (1.23.0-1) unstable; urgency=medium
+
+  * New upstream version 1.23.0.
+     - includes support for OpenRC scripts (Closes: #962412).
+  * d/control:
+     - add myself to Uploaders.
+     - remove retired Uploaders (Closes: #910797)
+     - update to Standards Version 4.6.0 (no changes)
+  * d/patches:
+    - remove patches-from-trek-closes-971713.patch applied upstream.
+    - Refresh patches.
+    - New patch to keep /sbin/insserv and /lib/lsb/ in / despite
+      upstream now using PREFIX.
+  * Remove obsolete /etc/bash_completion.d/insserv conffile (Closes: #868103).
+
+ -- Mark Hindley <leepen@debian.org>  Thu, 23 Sep 2021 12:57:28 +0100
+
 insserv (1.21.0-1.1pexip3) pexip-bullseye; urgency=medium
 
   * Bullseye rebuild for ARM64 inclusion
@@ -62,7 +92,8 @@ insserv (1.20.0-1) unstable; urgency=medium
 insserv (1.20.0~beta2-1) experimental; urgency=medium
 
   * New upstream release
-    (Closes: #573571, #775912, #661314, #547717, #547609, #601054, #538304, #926547, #622878)
+    (Closes: #573571, #775912, #661314, #547717, #547609, #601054, #538304,
+    #926547, #622878)
   * Drop patches, applied upstream; refresh rest. Patches applied upstream:
     + 92_m68k_alignment.patch
     + 130_crossbuild_fixes.patch
@@ -1403,7 +1434,7 @@ insserv (1.08.0-1) unstable; urgency=low
     reflect the argument passed on to these scripts in debian.
     Addresses part of bug #350188.
 
- -- Petter Reinholdtsen <pere@debian.org>  Sun,  1 Apr 2006 17:30:35 +0100
+ -- Petter Reinholdtsen <pere@debian.org>  Sat, 01 Apr 2006 17:30:35 +0100
 
 insserv (1.04.0-2) unstable; urgency=low
 
@@ -1515,7 +1546,7 @@ insserv (1.00.8-3) unstable; urgency=low
     sequence in README.Debian.
   * Some package cleanup.
 
- -- Petter Reinholdtsen <pere@debian.org>  Fri, 30 Aug 2005 00:20:16 +0200
+ -- Petter Reinholdtsen <pere@debian.org>  Tue, 30 Aug 2005 00:20:16 +0200
 
 insserv (1.00.8-2) unstable; urgency=low
 
