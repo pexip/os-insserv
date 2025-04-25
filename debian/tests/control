@@ -1,1 +1,2 @@
 Tests: upstream
+Restrictions: flaky

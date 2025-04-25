@@ -1,3 +1,52 @@
+insserv (1.26.0-1) unstable; urgency=medium
+
+  * New upstream version 1.26.0
+    - includes manpage updates (Closes: #1087352)
+  * Drop patch fixed upstream.
+
+ -- Mark Hindley <leepen@debian.org>  Mon, 23 Dec 2024 07:29:26 +0000
+
+insserv (1.25.0-1) unstable; urgency=medium
+
+  * New upstream version 1.25.0
+  * d/patches: drop patch fixed upstream.
+
+ -- Mark Hindley <leepen@debian.org>  Wed, 21 Aug 2024 18:09:48 +0100
+
+insserv (1.24.0-4) unstable; urgency=medium
+
+  * Add patch to identify openrc-run scripts with merged-/usr shebang.
+
+ -- Mark Hindley <leepen@debian.org>  Thu, 01 Aug 2024 20:59:32 +0100
+
+insserv (1.24.0-3) unstable; urgency=medium
+
+  * d/control: bump standards version (no changes).
+  * debian/patches/install-binaries-ignore-PREFIX.patch: drop to move
+    files in aliased locations to /usr.  (Closes: #1073634)
+  * d/t/control: fix typo.
+  * d/t/upstream: use canonical path.
+
+ -- Mark Hindley <leepen@debian.org>  Tue, 18 Jun 2024 14:28:09 +0100
+
+insserv (1.24.0-2) unstable; urgency=medium
+
+  [ Mark Hindley ]
+  * Drop Petter Reinholdtsen from uploaders with thanks.
+  * Update standards version to 4.6.2 (no changes).
+  * d/postinst: add patch from josch@debian.org to support DPKG_ROOT.
+    (Closes: #1056176)
+  * d/t/control: mark upstream tests as flaky (See #1052942).
+  * Ignore flaky upstream testsuite failures, pending upstream fix.
+    (Closes: #1052942)
+
+  [ Debian Janitor ]
+  * Remove 1 obsolete maintscript entry.
+  * Bump debhelper from old 12 to 13.
+  * Set upstream metadata fields: Bug-Database, Repository-Browse.
+
+ -- Mark Hindley <leepen@debian.org>  Wed, 10 Jan 2024 16:35:21 +0000
+
 insserv (1.24.0-1+pexip24u3) pexip-bookworm; urgency=medium
 
   * New versioning scheme

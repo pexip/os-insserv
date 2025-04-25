@@ -8,7 +8,7 @@ rm -rf   "${AUTOPKGTEST_TMP}/insserv/tests"
 mkdir -p "${AUTOPKGTEST_TMP}/insserv/tests"
 cp -r tests/* "${AUTOPKGTEST_TMP}/insserv/tests/"
 
-export insserv=/sbin/insserv
+export insserv=/usr/sbin/insserv
 cd "${AUTOPKGTEST_TMP}/insserv/tests/"
 ./common
 severity=check ./run-testsuite
